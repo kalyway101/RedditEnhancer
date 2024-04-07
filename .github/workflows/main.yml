@@ -1,15 +1,25 @@
-  # You may pin to the exact commit or the version.
-  # uses: maierj/fastlane-action@5a3b971aaa26776459bb26894d6c1a1a84a311a7
-uses: maierj/fastlane-action@v3.1.0
-with:
-  # The lane that should be executed.
-  lane: 
-  # The relative path from the project root directory to the subdirectory where the fastlane folder is located.
-  subdirectory: # optional
-  # If set to true, adds the verbose option to the fastlane command for extended log output.
-  verbose: # optional
-  # The options that should be passed as arguments to the lane. The options should be serialized as a JSON object.
-  options: # optional
-  # The env value that should be passed as an argument to the lane. The value should match to one of your fastlane env files.
-  env: # optional
-          
+on:
+  push:
+    branches:
+    - main
+    - release/*
+
+jobs:
+  test:
+    runs-on: macos-10.15
+    timeout-minutes: 15
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v3.0.0
+        with:
+          ref: ${{ github.ref }}
+      - name: Setup - Xcode
+        run: xcode-select -s /Applications/Xcode_13.2.app
+      - name: Setup - Ruby and bundler dependencies
+        uses: ruby/setup-ruby@v1.99.0
+        with:
+          bundler-cache: true
+      - name: Safari Webstore Upload via Browser Platform Publish
+        uses: PlasmoHQ/bpp@v2
+        with:
+          keys: ${{ secrets.BPP_KEYS }}
